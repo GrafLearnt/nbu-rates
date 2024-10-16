@@ -20,15 +20,25 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm run build
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Deploy GitHub Pages site
-      uses: actions/deploy-pages@v4.0.5
-      with:  
-        token: ${{ github.token }}
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Deploy GitHub Pages site
+        uses: actions/deploy-pages@v4.0.5
+        with:  
+          token: ${{ github.token }}
