@@ -44,8 +44,9 @@ jobs:
 
       # Upload the entire `dist` directory to GitHub Pages
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4.0.5
+        uses: crazy-max/ghaction-github-pages@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          artifact_name: github-pages  # Name of the artifact being deployed
-          path: ./dist  # Path to your built files
+          target_branch: gh-pages
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
