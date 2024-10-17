@@ -27,7 +27,7 @@ const ExchangeRatesTable = () => {
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(dayjs('2020-03-02')); // Initial date
+  const [selectedDate, setSelectedDate] = useState(dayjs(new Date())); // Initial date
 
   const fetchData = async (date) => {
     setLoading(true);
