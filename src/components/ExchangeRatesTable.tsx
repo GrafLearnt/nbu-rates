@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import {
   Table,
@@ -12,6 +13,7 @@ import {
   Typography,
   Container,
   Grid,
+  Box,
 } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
@@ -24,10 +26,16 @@ import dayjs from 'dayjs';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const ExchangeRatesTable = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(dayjs(new Date())); // Initial date
+  const [selectedDate, setSelectedDate] = useState(dayjs(searchParams.get('date') || new Date())); // Initial date
+
+  function bufferedSetSelectedDate(date) {
+    setSelectedDate(date);
+    setSearchParams({ date: date.format('YYYYMMDD') });
+  }
 
   const fetchData = async (date) => {
     setLoading(true);
@@ -63,7 +71,7 @@ const ExchangeRatesTable = () => {
           Exchange Rates on <DatePicker
               label="Select Date"
               value={selectedDate}
-              onChange={(newDate) => setSelectedDate(newDate)}
+              onChange={(newDate) => bufferedSetSelectedDate(newDate)}
               format="YYYY-MM-DD"
             />
         </Typography>
