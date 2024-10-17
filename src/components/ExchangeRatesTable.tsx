@@ -15,6 +15,10 @@ import {
 } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
 // Register chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -23,23 +27,26 @@ const ExchangeRatesTable = () => {
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(dayjs('2020-03-02')); // Initial date
+
+  const fetchData = async (date) => {
+    setLoading(true);
+    try {
+      const formattedDate = date.format('YYYYMMDD'); // Format the date as required by the API
+      const response = await axios.get(
+        `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${formattedDate}&json`
+      );
+      setExchangeRates(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          'https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=20200302&json'
-        );
-        setExchangeRates(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    fetchData(selectedDate); // Fetch data for the initial date
+  }, [selectedDate]);
 
   if (loading) {
     return <CircularProgress />;
@@ -50,31 +57,38 @@ const ExchangeRatesTable = () => {
   }
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Exchange Rates on 2020-03-02
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Currency</TableCell>
-              <TableCell>Code</TableCell>
-              <TableCell>Rate</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {exchangeRates.map((rate) => (
-              <TableRow key={rate.r030}>
-                <TableCell>{rate.txt}</TableCell>
-                <TableCell>{rate.cc}</TableCell>
-                <TableCell>{rate.rate}</TableCell>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Container>
+        <Typography variant="h4" gutterBottom>
+          Exchange Rates on <DatePicker
+              label="Select Date"
+              value={selectedDate}
+              onChange={(newDate) => setSelectedDate(newDate)}
+              format="YYYY-MM-DD"
+            />
+        </Typography>
+        <TableContainer component={Paper} style={{ marginTop: 16 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Currency</TableCell>
+                <TableCell>Code</TableCell>
+                <TableCell>Rate</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Container>
+            </TableHead>
+            <TableBody>
+              {exchangeRates.map((rate) => (
+                <TableRow key={rate.r030}>
+                  <TableCell>{rate.txt}</TableCell>
+                  <TableCell>{rate.cc}</TableCell>
+                  <TableCell>{rate.rate}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Container>
+    </LocalizationProvider>
   );
 };
 
