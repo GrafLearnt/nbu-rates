@@ -19,6 +19,7 @@ function App() {
   return (
     <>
       <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
         <Router>
           <ExchangeRatesTable />
         </Router>
