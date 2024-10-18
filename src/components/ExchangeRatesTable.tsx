@@ -89,7 +89,6 @@ const ExchangeRatesTable = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Container>
         <Typography variant="h4" gutterBottom>
-          Exchange Rates on{" "}
           <DatePicker
             label="Select Date"
             value={selectedDate}
