@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import axios from "axios";
 import {
   Table,
   TableBody,
@@ -14,35 +14,56 @@ import {
   Container,
   Grid,
   Box,
-} from '@mui/material';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+  TextField,
+} from "@mui/material";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 // Register chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 const ExchangeRatesTable = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(dayjs(searchParams.get('date') || new Date())); // Initial date
+  const [selectedDate, setSelectedDate] = useState(
+    dayjs(searchParams.get("date") || new Date()),
+  ); // Initial date
 
   function bufferedSetSelectedDate(date) {
     setSelectedDate(date);
-    setSearchParams({ date: date.format('YYYYMMDD') });
+    setSearchParams({ date: date.format("YYYYMMDD") });
   }
 
   const fetchData = async (date) => {
     setLoading(true);
     try {
-      const formattedDate = date.format('YYYYMMDD'); // Format the date as required by the API
+      const formattedDate = date.format("YYYYMMDD"); // Format the date as required by the API
       const response = await axios.get(
-        `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${formattedDate}&json`
+        `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${formattedDate}&json`,
       );
       setExchangeRates(response.data);
       setLoading(false);
@@ -68,13 +89,22 @@ const ExchangeRatesTable = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Container>
         <Typography variant="h4" gutterBottom>
-          Exchange Rates on <DatePicker
-              label="Select Date"
-              value={selectedDate}
-              onChange={(newDate) => bufferedSetSelectedDate(newDate)}
-              format="YYYY-MM-DD"
-            />
+          Exchange Rates on{" "}
+          <DatePicker
+            label="Select Date"
+            value={selectedDate}
+            onChange={(newDate) => bufferedSetSelectedDate(newDate)}
+            format="YYYY-MM-DD"
+          />
         </Typography>
+        <TextField
+          id="standard-basic"
+          label="Seacrch"
+          variant="standard"
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setSearch(event.target.value.toLowerCase());
+          }}
+        />
         <TableContainer component={Paper} style={{ marginTop: 16 }}>
           <Table>
             <TableHead>
@@ -85,13 +115,19 @@ const ExchangeRatesTable = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {exchangeRates.map((rate) => (
-                <TableRow key={rate.r030}>
-                  <TableCell>{rate.txt}</TableCell>
-                  <TableCell>{rate.cc}</TableCell>
-                  <TableCell>{rate.rate}</TableCell>
-                </TableRow>
-              ))}
+              {exchangeRates.map((rate) => {
+                // {rate.cc.toLowerCase().startsWith(search) || rate.txt.toLowerCase().startsWith(search) && (
+                return (
+                  (rate.cc.toLowerCase().includes(search) ||
+                    rate.txt.toLowerCase().includes(search)) && (
+                    <TableRow key={rate.r030}>
+                      <TableCell>{rate.txt}</TableCell>
+                      <TableCell>{rate.cc}</TableCell>
+                      <TableCell>{rate.rate}</TableCell>
+                    </TableRow>
+                  )
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Table,
   TableBody,
@@ -12,12 +12,29 @@ import {
   Typography,
   Container,
   Grid,
-} from '@mui/material';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+} from "@mui/material";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
 // Register chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 const ExchangeRatesChart = () => {
   const [loading, setLoading] = useState(true);
@@ -39,10 +56,12 @@ const ExchangeRatesChart = () => {
       for (let i = 0; i < 7; i++) {
         const date = new Date(currentDate);
         date.setDate(currentDate.getDate() - i);
-        const formattedDate = date.toISOString().slice(0, 10).replace(/-/g, '');
+        const formattedDate = date.toISOString().slice(0, 10).replace(/-/g, "");
 
         promises.push(
-          axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${formattedDate}&json`)
+          axios.get(
+            `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${formattedDate}&json`,
+          ),
         );
 
         dateArray.push(date.toISOString().slice(0, 10)); // Store the date for labels
@@ -56,13 +75,13 @@ const ExchangeRatesChart = () => {
 
         // Set unique currencies based on the first response
         if (ratesData.length > 0) {
-          const uniqueCurrencies = ratesData[0].map(rate => rate.cc);
+          const uniqueCurrencies = ratesData[0].map((rate) => rate.cc);
           setCurrencies(uniqueCurrencies);
         }
 
         setLoading(false);
       } catch (err) {
-        setError('Failed to load data');
+        setError("Failed to load data");
         setLoading(false);
       }
     };
@@ -83,7 +102,8 @@ const ExchangeRatesChart = () => {
     labels: dates, // X-axis labels (dates)
     datasets: currencies.map((currencyCode) => {
       const currencyRates = exchangeRates.map(
-        (dailyRates) => dailyRates.find((rate) => rate.cc === currencyCode)?.rate || 0
+        (dailyRates) =>
+          dailyRates.find((rate) => rate.cc === currencyCode)?.rate || 0,
       );
 
       return {
@@ -98,13 +118,16 @@ const ExchangeRatesChart = () => {
   };
 
   return (
-    <Container style={{ width: '1000%', height: '1000%', padding: 0 }}>
+    <Container style={{ width: "1000%", height: "1000%", padding: 0 }}>
       <Typography variant="h4" gutterBottom>
         Exchange Rates for the Past 7 Days (All Currencies)
       </Typography>
       <Grid container justifyContent="center">
         <Grid item xs={12}>
-          <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+          <Line
+            data={chartData}
+            options={{ responsive: true, maintainAspectRatio: false }}
+          />
         </Grid>
       </Grid>
     </Container>
