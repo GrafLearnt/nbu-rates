@@ -98,7 +98,7 @@ const ExchangeRatesTable = () => {
         </Typography>
         <TextField
           id="standard-basic"
-          label="Seacrch"
+          label="Search"
           variant="standard"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setSearch(event.target.value.toLowerCase());
