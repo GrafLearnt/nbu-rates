@@ -43,9 +43,17 @@ ChartJS.register(
   Legend,
 );
 
+type CC = {
+  r030: number;
+  txt: string;
+  rate: number;
+  cc: string;
+  exchangedate: string;
+};
+
 const ExchangeRatesTable = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [exchangeRates, setExchangeRates] = useState([]);
+  const [exchangeRates, setExchangeRates] = useState<CC[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
@@ -62,10 +70,24 @@ const ExchangeRatesTable = () => {
     setLoading(true);
     try {
       const formattedDate = date.format("YYYYMMDD"); // Format the date as required by the API
-      const response = await axios.get(
+      const response = await axios.get<CC[]>(
         `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${formattedDate}&json`,
       );
-      setExchangeRates(response.data);
+      setExchangeRates(
+        response.data.sort((a, b) => {
+          const priority = (cc) => {
+            switch (cc) {
+              case "USD":
+                return 0; // Always first
+              case "EUR":
+                return 1; // Always second
+              default:
+                return 2; // Everything else follows
+            }
+          };
+          return priority(a.cc) - priority(b.cc);
+        }),
+      );
       setLoading(false);
     } catch (err) {
       setError(err.message);
