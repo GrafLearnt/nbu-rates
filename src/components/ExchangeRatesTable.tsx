@@ -15,6 +15,7 @@ import {
   Grid,
   Box,
   TextField,
+  Tooltip as TooltipM,
 } from "@mui/material";
 import { Line } from "react-chartjs-2";
 import {
@@ -140,7 +141,6 @@ const ExchangeRatesTable = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Currency</TableCell>
                 <TableCell>Code</TableCell>
                 <TableCell>Rate</TableCell>
                 <TableCell>To UAH</TableCell>
@@ -154,8 +154,11 @@ const ExchangeRatesTable = () => {
                   (rate.cc.toLowerCase().includes(search) ||
                     rate.txt.toLowerCase().includes(search)) && (
                     <TableRow key={rate.r030}>
-                      <TableCell>{rate.txt}</TableCell>
-                      <TableCell>{rate.cc}</TableCell>
+                      <TableCell>
+                        <TooltipM title={rate.txt}>
+                          <span>{rate.cc}</span>
+                        </TooltipM>
+                      </TableCell>
                       <TableCell>{rate.rate}</TableCell>
                       <TableCell>{(rate.rate * amount).toFixed(2)}</TableCell>
                       <TableCell>{(amount / rate.rate).toFixed(2)}</TableCell>
