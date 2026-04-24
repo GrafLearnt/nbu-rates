@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import {
@@ -57,6 +57,8 @@ const ExchangeRatesTable = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
+  const [amount, setAmount] = useState(1);
+  const inputRef = useRef(null);
   const [selectedDate, setSelectedDate] = useState(
     dayjs(searchParams.get("date") || new Date()),
   ); // Initial date
@@ -119,6 +121,7 @@ const ExchangeRatesTable = () => {
           />
         </Typography>
         <TextField
+          ref={inputRef}
           id="standard-basic"
           label="Search"
           variant="standard"
@@ -126,6 +129,13 @@ const ExchangeRatesTable = () => {
             setSearch(event.target.value.toLowerCase());
           }}
         />
+        <TextField
+          type="number"
+          variant="standard"
+          label="Amount"
+          defaultValue={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+        ></TextField>
         <TableContainer component={Paper} style={{ marginTop: 16 }}>
           <Table>
             <TableHead>
@@ -133,6 +143,8 @@ const ExchangeRatesTable = () => {
                 <TableCell>Currency</TableCell>
                 <TableCell>Code</TableCell>
                 <TableCell>Rate</TableCell>
+                <TableCell>To UAH</TableCell>
+                <TableCell>To Currency</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -145,6 +157,8 @@ const ExchangeRatesTable = () => {
                       <TableCell>{rate.txt}</TableCell>
                       <TableCell>{rate.cc}</TableCell>
                       <TableCell>{rate.rate}</TableCell>
+                      <TableCell>{(rate.rate * amount).toFixed(2)}</TableCell>
+                      <TableCell>{(amount / rate.rate).toFixed(2)}</TableCell>
                     </TableRow>
                   )
                 );
